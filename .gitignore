@@ -1,2 +1,5 @@
 example-docker-compose.yml
 notes.txt
+credentials.json
+fleetio_creds.json
+service_account.json

@@ -1,1 +1,6 @@
 # Astro Runtime includes the following pre-installed providers packages: https://docs.astronomer.io/astro/runtime-image-architecture#provider-packages
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+gspread
+pandas

@@ -1,0 +1,16 @@
+python-dev
+telnet
+net-tools
+curl
+redis-tools
+default-jre
+netcat
+iputils-ping
+libmariadb-dev-compat
+libmariadb-dev
+gcc
+libkrb5-dev
+libsasl2-dev
+libsasl2-2
+libsasl2-modules-gssapi-mit
+postgresql

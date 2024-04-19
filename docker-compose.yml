@@ -3,6 +3,16 @@ version: '2.4'
 volumes:
   postgres-data: {}
 
+networks:
+  technicals:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.11.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: br_technicals
+
 services:
   portainer:
     image: portainer/portainer-ce
@@ -18,40 +28,31 @@ services:
       TZ: $TZ
       PUID: $PUID
       PGID: $PGID
+    networks:
+      technicals:
+        ipv4_address: '172.11.0.110'
 
-  watchtower:
-    container_name: watchtower
-    image: containrrr/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock 
+  fleetio:
+    container_name: fleetio
+    image: postgres
     environment:
-      TZ: $TZ
-      WATCHTOWER_REMOVE_VOLUMES: "true"
-      WATCHTOWER_CLEANUP: "true"
-      WATCHTOWER_INCLUDE_STOPPED: "true"
-      WATCHTOWER_POLL_INTERVAL: 10000
-      WATCHTOWER_TIMEOUT: 15
-    restart: always
-
-  monocker:
-    container_name: monocker
-    image: petersem/monocker
-    environment:
-      MESSAGE_PLATFORM: $MONOCKER_MESSAGE_PLATFORM
-      # Optional - includes or excludes specified containers - default behaviour is false
-      LABEL_ENABLE: 'false'
-      # Optional - only show when container state changes to being offline (paused, exited, running (unhealthy), or dead) - default is false
-      ONLY_OFFLINE_STATES: 'false'
-      # Optional - regardless of any other settings, you can ignore or include 'exited'
-      EXCLUDE_EXITED: 'false'
       PUID: $PUID
       PGID: $PGID
-      TZ: $TZ      
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    labels: 
-      autoheal: $AUTOHEAL_RESTART
+      TZ: $TZ
+      POSTGRES_DB: fleetio
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+      PGDATA: /var/lib/postgresql/data/fleetio
     restart: always
+    volumes:
+      - $DOCKER_PATH/postgres/etc:/etc/postgresql
+      - $DOCKER_PATH/postgres/log:/var/log/postgresql
+      - $DOCKER_PATH/postgres:/var/lib/postgresql
+    ports:
+      - 1234:5432
+    networks:
+      technicals:
+        ipv4_address: '172.11.0.111'
 
   dozzle:
     container_name: dozzle
@@ -67,22 +68,8 @@ services:
     labels: 
       autoheal: $AUTOHEAL_RESTART
     restart: always
+    networks:
+      technicals:
+        ipv4_address: '172.11.0.112'
 
-  fleetio:
-    container_name: fleetio
-    image: postgres
-    environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
-      POSTGRES_DB: fleetio
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: admin
-      PGDATA: /var/lib/postgresql/data/fleetio
-    # restart: always
-    volumes:
-      - $DOCKER_PATH/postgres/etc:/etc/postgresql
-      - $DOCKER_PATH/postgres/log:/var/log/postgresql
-      - $DOCKER_PATH/postgres:/var/lib/postgresql
-    ports:
-      - 5432:5432
+
