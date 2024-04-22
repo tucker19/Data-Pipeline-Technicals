@@ -21,23 +21,57 @@ class FleetioOperator(BaseOperator):
 		fleetio = Fleetio(self.scopes, self.spreadsheet_id, self.range_name, self.publish_link)
 		#df = fleetio.published_csv()
 		logger.info('Getting df')
+		#df = fleetio.published_csv()
 		df = fleetio.service_account_auth()
+		df = fleetio.update_col(df)
+		main_df, custom_fields_df, main_list, custom_fields_list = fleetio.clean_data(df)
 
 		logger.info('Connection to DB')
-		pg_hook = PostgresHook.get_hook('fleetio_db')
-		conn = pg_hook.get_conn()
-		# conn = psycopg2.connect(
-		# 	dbname='fleetio',
+		# pg_hook = PostgresHook.get_hook(conn_id='fleetio_default', 
+		# 	host='host.docker.internal',
+		# 	port=1234,
 		# 	user='admin',
 		# 	password='admin',
-		# 	host='localhost',
-		# 	port=1234)
+		# 	database='fleetio')
+
+		# conn = pg_hook.get_conn()
+		conn = psycopg2.connect(
+			dbname='fleetio',
+			user='admin',
+			password='admin',
+			host='192.168.86.36',
+			port=1234)
 
 		logger.info('Have connection')
 		cur = conn.cursor()
 		logger.info('Have cursor')
 
-		fleetio.import_into_postrgres(conn, cur, df)
+		issues_execute_str = """
+		CREATE TABLE IF NOT EXISTS issues (
+			description text DEFAULT NULL,
+			created_by_id text DEFAULT NULL,
+			closed_by_id text DEFAULT NULL,
+			vehicle_id text DEFAULT NULL,
+			vehicle_meter_value decimal DEFAULT NULL,
+			vehicle_meter_unit text DEFAULT NULL,
+			vehicle_meter_at timestamp DEFAULT NULL,
+			custom_fields JSONB DEFAULT NULL,
+			reported_at timestamp DEFAULT NULL,
+			resolved_at timestamp DEFAULT NULL,
+			resolved_note text DEFAULT NULL,
+			state text DEFAULT NULL,
+			created_at timestamp DEFAULT NULL,
+			updated_at timestamp DEFAULT NULL);
+		"""
+		fleetio.import_into_postrgres_sql(conn, cur, main_list, 'issues', issues_execute_str)
+
+		custom_fields_execute_str = """
+		CREATE TABLE IF NOT EXISTS custom_fields (
+			vehicle_id text DEFAULT NULL,
+			key text DEFAULT NULL,
+			value text DEFAULT NULL);
+		"""
+		fleetio.import_into_postrgres_sql(conn, cur, custom_fields_list, 'custom_fields', custom_fields_execute_str)
 
 		cur.close()
 		conn.close()

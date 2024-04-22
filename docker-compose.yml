@@ -3,15 +3,15 @@ version: '2.4'
 volumes:
   postgres-data: {}
 
-networks:
-  technicals:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.11.0.0/16
-    driver_opts:
-      com.docker.network.bridge.name: br_technicals
+# networks:
+#   technicals:
+#     driver: bridge
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 172.11.0.0/16
+#     driver_opts:
+#       com.docker.network.bridge.name: br_technicals
 
 services:
   portainer:
@@ -28,9 +28,9 @@ services:
       TZ: $TZ
       PUID: $PUID
       PGID: $PGID
-    networks:
-      technicals:
-        ipv4_address: '172.11.0.110'
+    # networks:
+    #   technicals:
+    #     ipv4_address: '172.11.0.110'
 
   fleetio:
     container_name: fleetio
@@ -50,9 +50,9 @@ services:
       - $DOCKER_PATH/postgres:/var/lib/postgresql
     ports:
       - 1234:5432
-    networks:
-      technicals:
-        ipv4_address: '172.11.0.111'
+    # networks:
+    #   technicals:
+    #     ipv4_address: '172.11.0.111'
 
   dozzle:
     container_name: dozzle
@@ -68,8 +68,8 @@ services:
     labels: 
       autoheal: $AUTOHEAL_RESTART
     restart: always
-    networks:
-      technicals:
-        ipv4_address: '172.11.0.112'
+    # networks:
+    #   technicals:
+    #     ipv4_address: '172.11.0.112'
 
 
