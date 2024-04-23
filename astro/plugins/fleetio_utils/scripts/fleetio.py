@@ -191,7 +191,7 @@ class Fleetio():
 
 		main_df = pd.DataFrame(temp)
 		custom_fields_df = pd.DataFrame(custom_fields_list)
-		print(custom_fields_list)
+		# print(custom_fields_list)
 		# print(df.dtypes)
 		# print(df)
 		#print(custom_fields_df)
