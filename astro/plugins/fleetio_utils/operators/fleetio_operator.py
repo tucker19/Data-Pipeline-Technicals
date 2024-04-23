@@ -63,7 +63,7 @@ class FleetioOperator(BaseOperator):
 			created_at timestamp DEFAULT NULL,
 			updated_at timestamp DEFAULT NULL);
 		"""
-		fleetio.import_into_postrgres_sql(conn, cur, main_list, 'issues', issues_execute_str)
+		conn, cur = fleetio.import_into_postrgres_sql(conn, cur, main_list, 'issues', issues_execute_str)
 
 		custom_fields_execute_str = """
 		CREATE TABLE IF NOT EXISTS custom_fields (
@@ -71,7 +71,7 @@ class FleetioOperator(BaseOperator):
 			key text DEFAULT NULL,
 			value text DEFAULT NULL);
 		"""
-		fleetio.import_into_postrgres_sql(conn, cur, custom_fields_list, 'custom_fields', custom_fields_execute_str)
+		conn, cur = fleetio.import_into_postrgres_sql(conn, cur, custom_fields_list, 'custom_fields', custom_fields_execute_str)
 
 		cur.close()
 		conn.close()

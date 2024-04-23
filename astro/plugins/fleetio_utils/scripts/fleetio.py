@@ -98,32 +98,39 @@ class Fleetio():
 		logger.info(f'Done importing {len(df.index)} rows into {table}')
 
 	def import_into_postrgres_sql(self, conn, cur, dict_list, table, execute_str):
-		logger.info('Possibily creating table...')
+		logger.info(f'Possibily creating table {table}...')
+		logger.info(f"Creation String:\n{execute_str}")
 		cur.execute(execute_str)
 
 		logger.info('Ingesting into Postgres DB')
-		count = 0
-		for dict_entry in dict_list:
-			keys = ''
-			values = ''
-			for key in dict_entry.keys():
-				value = dict_entry.get(key)
-				if value:
-					if not keys:
-						keys += key
-						values += f"'{value}'" if type(value) != float else value
-					else:
-						keys += f", {key}"
-						values += f', {self.clean_value(value)}'
+		try:
+			count = 0
+			sql = None
+			for dict_entry in dict_list:
+				keys = ''
+				values = ''
+				for key in dict_entry.keys():
+					value = dict_entry.get(key)
+					if value:
+						if not keys:
+							keys += key
+							values += f"'{value}'" if type(value) != float else value
+						else:
+							keys += f", {key}"
+							values += f', {self.clean_value(value)}'
 
-			sql = f"INSERT INTO {table} ({keys}) VALUES ({values})"
-			#print(sql)
-			cur.execute(sql)
-			conn.commit()
-			count += 1
+				sql = f"INSERT INTO {table} ({keys}) VALUES ({values})"
+				#print(sql)
+				cur.execute(sql)
+				conn.commit()
+				count += 1
 
-		logger.info(f'Done importing {count} rows into {table}')
-		return
+			logger.info(f'Done importing {count} rows into {table}')
+		except Exception as e:
+			logger.error(f"SQL: {sql}")
+			raise e
+
+		return conn, cur
 
 
 	def update_col(self, df):
@@ -150,7 +157,8 @@ class Fleetio():
 			#print()
 			temp_dict = {}
 			try:
-				temp_dict['description'] = None if not record.get('description').strip() else record.get('description')
+				description = None if not record.get('description').strip() else record.get('description')
+				temp_dict['description'] = None if not description else description.replace("'", "")
 				temp_dict['created_by_id'] = None if not record.get('created_by_id').strip() else record.get('created_by_id')
 				temp_dict['closed_by_id'] = None if not record.get('closed_by_id').strip() else record.get('closed_by_id')
 				vehicle_id = None if not record.get('vehicle_id').strip() else record.get('vehicle_id')
@@ -158,7 +166,7 @@ class Fleetio():
 				temp_dict['vehicle_meter_value'] = None if not record.get('vehicle_meter_value').strip() else abs(float(record.get('vehicle_meter_value')))
 				temp_dict['vehicle_meter_unit'] = None if not record.get('vehicle_meter_unit').strip() else record.get('vehicle_meter_unit')
 				temp_dict['vehicle_meter_at'] = None if not record.get('vehicle_meter_at').strip() else parse(record.get('vehicle_meter_at'))
-				temp_dict['custom_fields'] = None if '{' not in record.get('custom_fields') else json.loads(record.get('custom_fields'))
+				#temp_dict['custom_fields'] = None if '{' not in record.get('custom_fields') else json.loads(record.get('custom_fields'))
 				temp_dict['reported_at'] = None if not record.get('reported_at').strip() else parse(record.get('reported_at'))
 				temp_dict['resolved_at'] = None if not record.get('resolved_at').strip() else parse(record.get('resolved_at'))
 				temp_dict['resolved_note'] = None if not record.get('resolved_note').strip() else record.get('resolved_note')
@@ -168,23 +176,22 @@ class Fleetio():
 				#print(temp_dict)
 				#print('----------')
 				temp.append(temp_dict)
+
+				custom_field = None if '{' not in record.get('custom_fields') else json.loads(record.get('custom_fields'))
+				if custom_field:
+					for key in custom_field.keys():
+						custom_fields_dict = {}
+						custom_fields_dict['vehicle_id'] = vehicle_id
+						custom_fields_dict['key'] = key
+						custom_fields_dict['value'] = custom_field.get(key)
+						custom_fields_list.append(custom_fields_dict)
 			except Exception as e:
 				logger.error(record)
 				raise e
 
-		custom_field = temp_dict.get('custom_fields')
-		if custom_field:
-			vehicle_id = temp_dict.get('vehicle_id')
-			for key in custom_field.keys():
-				custom_fields_dict = {}
-				custom_fields_dict['vehicle_id'] = vehicle_id
-				custom_fields_dict['key'] = key
-				custom_fields_dict['value'] = custom_field.get(key)
-				custom_fields_list.append(custom_fields_dict)
-
 		main_df = pd.DataFrame(temp)
 		custom_fields_df = pd.DataFrame(custom_fields_list)
-		#print(custom_fields_list)
+		print(custom_fields_list)
 		# print(df.dtypes)
 		# print(df)
 		#print(custom_fields_df)
