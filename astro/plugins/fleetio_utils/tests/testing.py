@@ -29,7 +29,7 @@ class FleetioTest(unittest.Testcase):
 		df = fleetio.published_csv()
 		self.assertEquals(len(df), 500, f'Should be 500 rows, not {len(df)} rows')
 
-	def test_4_clean_columns(self)
+	def test_4_clean_columns(self):
 		fleetio = Fleetio(SCOPES, SPREADSHEET_ID, RANGE_NAME, PUBLISH_LINK)
 		df = fleetio.service_account_auth()
 		df = fleetio.update_col(df)
