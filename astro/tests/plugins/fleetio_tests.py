@@ -3,7 +3,7 @@ import psycopg2
 import pandas as pd
 
 from dateutil.parser import parse
-from fleetio_utils.scripts import Fleetio
+from fleetio_utils.scripts.fleetio import Fleetio
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 SPREADSHEET_ID = "1hxPf4fMbJevU47PfSX8O6_NVy081v8ninrH7K4ub6IA"

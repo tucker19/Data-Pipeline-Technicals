@@ -1,7 +1,7 @@
 version: '2.4'
 
-volumes:
-  postgres-data: {}
+#volumes:
+#  postgres-data: {}
 
 # networks:
 #   technicals:
@@ -32,27 +32,27 @@ services:
     #   technicals:
     #     ipv4_address: '172.11.0.110'
 
-  fleetio:
-    container_name: fleetio
-    image: postgres
-    environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: $TZ
-      POSTGRES_DB: fleetio
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: admin
-      PGDATA: /var/lib/postgresql/data/fleetio
-    restart: always
-    volumes:
-      - $DOCKER_PATH/postgres/etc:/etc/postgresql
-      - $DOCKER_PATH/postgres/log:/var/log/postgresql
-      - $DOCKER_PATH/postgres:/var/lib/postgresql
-    ports:
-      - 1234:5432
-    # networks:
-    #   technicals:
-    #     ipv4_address: '172.11.0.111'
+#  fleetio:
+#    container_name: fleetio
+#    image: postgres
+#    environment:
+#      PUID: $PUID
+#      PGID: $PGID
+#      TZ: $TZ
+#      POSTGRES_DB: fleetio
+#      POSTGRES_PASSWORD: admin
+#      POSTGRES_USER: admin
+#      PGDATA: /var/lib/postgresql/data/fleetio
+#    restart: always
+#    volumes:
+#      - $DOCKER_PATH/postgres/etc:/etc/postgresql
+#      - $DOCKER_PATH/postgres/log:/var/log/postgresql
+#      - $DOCKER_PATH/postgres:/var/lib/postgresql
+#    ports:
+#      - 1234:5432
+#    # networks:
+#    #   technicals:
+#    #     ipv4_address: '172.11.0.111'
 
   dozzle:
     container_name: dozzle

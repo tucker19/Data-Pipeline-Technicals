@@ -46,6 +46,7 @@ class FleetioOperator(BaseOperator):
 		cur = conn.cursor()
 		logger.info('Have cursor')
 
+		#custom_fields JSONB DEFAULT NULL,
 		issues_execute_str = """
 		CREATE TABLE IF NOT EXISTS issues (
 			description text DEFAULT NULL,
@@ -55,7 +56,6 @@ class FleetioOperator(BaseOperator):
 			vehicle_meter_value decimal DEFAULT NULL,
 			vehicle_meter_unit text DEFAULT NULL,
 			vehicle_meter_at timestamp DEFAULT NULL,
-			custom_fields JSONB DEFAULT NULL,
 			reported_at timestamp DEFAULT NULL,
 			resolved_at timestamp DEFAULT NULL,
 			resolved_note text DEFAULT NULL,

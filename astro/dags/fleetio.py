@@ -12,7 +12,10 @@ PUBLISH_LINK = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSK3cw1dAHgcrNna
 
 default_args = default_args
 
-with DAG(dag_id='fleetio_ingest', catchup = False, default_args=default_args, schedule_interval = None) as dag:
+with DAG(dag_id='fleetio_ingest',
+         catchup = False,
+         default_args=default_args,
+         schedule_interval = None) as dag:
     begin = EmptyOperator(task_id="begin")
 
     fleetio_ingest = FleetioOperator(
