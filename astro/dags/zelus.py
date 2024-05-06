@@ -15,7 +15,14 @@ with DAG(dag_id='zelus_ingest',
 
     zelus_ingest = ZelusOperator(
         task_id="zelus-ingest",
-        dbname='technicals')
+        continue_run=False,
+        local_save=False,
+        limit_ingestion=False,
+        dbname='technicals',
+        user='admin',
+        password='admin',
+        host='192.168.86.36',
+        port=1234)
 
     end = EmptyOperator(task_id="end")
 

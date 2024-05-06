@@ -7,8 +7,15 @@ import psycopg2
 logger = logging.getLogger()
 
 class ZelusOperator(BaseOperator):
-    def __init__(self, dbname, *args, **kwargs):
+    def __init__(self, continue_run, local_save, limit_ingestion, dbname, user, password, host, port, *args, **kwargs):
+        self.continue_run = continue_run
+        self.local_save = local_save
+        self.limit_ingestion = limit_ingestion
         self.dbname = dbname
+        self.user = user
+        self.password = password
+        self.host = host
+        self.port = port
         super(ZelusOperator, self).__init__(*args, **kwargs)
 
     def execute(self, context=None):
@@ -19,31 +26,20 @@ class ZelusOperator(BaseOperator):
 
         jsonFiles = glob.glob(f"data/{todays_date_str}/*.json")
         jsonFiles.sort()
-        #logger.info(f'jsonFiles:\n{jsonFiles}')
-        # cricketStats = []
-        # input_count = 0
-        # for jsonFilePath in jsonFiles:
-        #     input_count += 1
-        #     cricketStats.append(zelus_testing.get_data_from_json_file(todays_date_str, jsonFilePath))
-        #     # if input_count > 1:
-        #     #     break
 
-        local_results_csv = {}
-        # for key in ['info', 'match_registry', 'innings']:
-        #     local_results_csv[key] = zelus_testing.get_result_destination(todays_date_str, key)
-
+        local_results_csv = [zelus_testing.get_result_destination(todays_date_str, key) for key in ['info', 'match_registry', 'innings']] if self.local_save else {}
         conn = psycopg2.connect(
             dbname=self.dbname,
-            user='admin',
-            password='admin',
-            host='192.168.86.36',
-            port=1234)
+            user=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port)
 
         logger.info('Have connection')
         cur = conn.cursor()
         logger.info('Have cursor')
 
-        successful_files = []#zelus_testing.get_successful_rows(conn, cur)
+        successful_files = zelus_testing.get_successful_rows(conn, cur) if self.continue_run else []
         madatory_files = ['1000851', '1000885', '1003271', '1003887', '1130661', '1160280', '1188427', '1202249']
 
         count = 1
@@ -53,7 +49,7 @@ class ZelusOperator(BaseOperator):
             logger.info(f'Processing "{jsonFilePath}", {count} of {num_of_files} files')
             cricketStat = zelus_testing.get_data_from_json_file(todays_date_str, jsonFilePath)
             filename = cricketStat.get('filename')
-            if count <= 1000 or filename in madatory_files:
+            if self.check_if_we_limit(self.limit_ingestion, madatory_files, count, filename):
                 if filename in successful_files:
                     logger.info(f'File {filename}.csv has already successful been processed')
                 else:
@@ -69,3 +65,11 @@ class ZelusOperator(BaseOperator):
         conn.close()
 
         zelus_testing.delete_files(todays_date_str)
+
+    def check_if_we_limit(self, limit_ingestion, madatory_files, count, filename):
+        result = True
+        if limit_ingestion:
+            if count > 1000 and filename not in madatory_files:
+                result = False
+
+        return result
