@@ -106,7 +106,7 @@ class FlipsideOperator(BaseOperator):
         Returns:
           A list of dict with name and query from file
     """
-    logger.info(f'Gathering data on {len(QUERY_FILES)} query files')
+    # logger.info(f'Gathering data on {len(QUERY_FILES)} query files')
     # query_records = asyncio.run(self.get_queries())
     # # print(f'We found {len(query_records)} queries')
     # self.queries = query_records
