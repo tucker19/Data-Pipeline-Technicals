@@ -1,7 +1,7 @@
 Overview
 ========
 
-Welcome to my Technical coding showcase! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
 
 Project Contents
 ================
@@ -20,8 +20,7 @@ Your Astro project contains the following files and folders:
 Deploy Your Project Locally
 ===========================
 
-1. A separate Postgres Database most likely on a second machine
-2. Start Airflow on your local machine by running 'astro dev start'.
+1. Start Airflow on your local machine by running 'astro dev start'.
 
 This command will spin up 4 Docker containers on your machine, each for a different Airflow component:
 
