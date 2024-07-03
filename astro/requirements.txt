@@ -8,3 +8,6 @@ apache-airflow-providers-postgres
 apache-airflow-providers-slack==7.2.0
 glob2
 pytest
+asyncio
+flipside
+sqlalchemy

@@ -27,20 +27,15 @@ class FleetioOperator(BaseOperator):
 		main_df, custom_fields_df, main_list, custom_fields_list = fleetio.clean_data(df)
 
 		logger.info('Connection to DB')
-		# pg_hook = PostgresHook.get_hook(conn_id='fleetio_default', 
-		# 	host='host.docker.internal',
-		# 	port=1234,
+		pg_hook = PostgresHook.get_hook(conn_id='technicals_postgres')
+
+		conn = pg_hook.get_conn()
+		# conn = psycopg2.connect(
+		# 	dbname='technicals',
 		# 	user='admin',
 		# 	password='admin',
-		# 	database='fleetio')
-
-		# conn = pg_hook.get_conn()
-		conn = psycopg2.connect(
-			dbname='fleetio',
-			user='admin',
-			password='admin',
-			host='192.168.86.36',
-			port=1234)
+		# 	host='192.168.86.36',
+		# 	port=1234)
 
 		logger.info('Have connection')
 		cur = conn.cursor()
